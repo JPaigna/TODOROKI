@@ -1,121 +1,174 @@
-
+/* Global Styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
 }
 
 body {
-  transition: background-color 0.3s, color 0.3s;
+  font-size: 16px;
 }
 
-/* Light and Dark Mode */
-.light {
-  background-color: #f9f9f9;
-  color:rgb(153, 52, 52);
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  transition: background-color 0.3s ease;
 }
 
 .dark {
-  background-color: #1e1e1e;
-  color: #e70b0b;
+  background-color: #1a1a1a;
+  color: #f1f1f1;
 }
 
-/* Main Container */
-.container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  border-radius: 30px;
-  box-shadow: 0 0 10px rgba(211, 85, 85, 0.1);
-  text-align: center;
-  border-color: #f06262;
-
-
+.light {
+  background-color: #f7f7f7;
+  color: #333;
 }
 
-/* Input Field */
-input[type="text"] {
-  width: 50%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  border-width: 0cap;
-  border-color: #007bff;
-}
-
-/* Task List */
-.task-list {
-  list-style: none;
-  padding: 0;
-  color: rgb(115, 221, 44);
-}
-
-.task-list li {
+header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 10px;
-  margin: 5px 0;
-  border-radius: 5px;
-  background: #fff;
-  transition: 0.3s;
-  color:rgb(235, 39, 14)
+  align-items: center;
+  width: 90%;
+  max-width: 600px;
+  margin-bottom: 20px;
 }
 
-.task-list li.completed {
-  text-decoration: line-through;
-  color: rgb(29, 226, 22);
-  background: hwb(0 91% 5%);
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #4CAF50;
 }
 
-/* Buttons */
-button {
-  padding: 8px 12px;
-  margin: 5px;
+.dark-mode-toggle {
+  background: none;
   border: none;
-  border-radius: 5px;
+  color: inherit;
   cursor: pointer;
-  transition: 0.3s;
-  color:#41110c;
-  border-width: 0cap;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.task-input {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  width: 75%;
+  border-radius: 25px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
 }
 
 button:hover {
-  opacity: 0.8;
+  background-color: #45a049;
 }
 
-/* Edit Button */
-.edit-btn {
-  background-color: #05186d;
-  color: rgb(252, 248, 248);
+.task-list {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  max-width: 600px;
 }
 
-/* Dark Mode Button */
-.dark-mode-toggle {
-  background-color: #44dd08;
-  color: white;
+.task-card {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
 }
 
-/* Filter Buttons */
+.task-card.completed {
+  background-color: #d3ffd3;
+  text-decoration: line-through;
+}
+
+.task-card-content {
+  display: flex;
+  align-items: center;
+  width: 85%;
+}
+
+.task-card-content input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+}
+
+.task-actions button {
+  background: none;
+  border: none;
+  color: #4CAF50;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 1.2rem;
+  transition: color 0.3s;
+}
+
+.task-actions button:hover {
+  color: #333;
+}
+
+.delete-btn {
+  color: #e74c3c;
+}
+
+.delete-btn:hover {
+  color: #c0392b;
+}
+
 .filter-buttons {
-  margin-top: 15px;
-  color:#d34216;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 .filter-buttons button {
-  background-color: #ccc;
-  color: rgb(8, 8, 8);
+  background: none;
+  border: 2px solid #4CAF50;
+  color: #4CAF50;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-.filter-buttons button.active {
-  font-weight: bold;
-  background-color: #007bff;
+.filter-buttons button:hover {
+  background-color: #4CAF50;
   color: white;
 }
 
-/* Checkbox */
-input[type="checkbox"] {
-  margin-right: 10px;
+.filter-buttons .active {
+  background-color: #4CAF50;
+  color: white;
 }

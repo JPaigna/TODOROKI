@@ -6,13 +6,11 @@ const App = () => {
     { id: 1, text: "Jog at 6am", completed: false, editing: false },
     { id: 2, text: "Prepare for breakfast at 8", completed: false, editing: false },
     { id: 3, text: "Ready for school", completed: false, editing: false },
-    { id: 4, text: "Do homeworks", completed: false, editing: false },
+    { id: 4, text: "Do homework", completed: false, editing: false },
     { id: 5, text: "Meditate", completed: false, editing: false },
   ]);
   const [filter, setFilter] = useState("all");
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("darkMode") === "true"
-  );
+  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
   const [newTask, setNewTask] = useState("");
 
   useEffect(() => {
@@ -26,35 +24,25 @@ const App = () => {
   };
 
   const toggleComplete = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+    setTasks(tasks.map((task) =>
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
   };
 
   const startEditing = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, editing: true } : task
-      )
-    );
+    setTasks(tasks.map((task) => task.id === id ? { ...task, editing: true } : task));
   };
 
   const editTask = (id, newText) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, text: newText } : task
-      )
-    );
+    setTasks(tasks.map((task) => task.id === id ? { ...task, text: newText } : task));
   };
 
   const stopEditing = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, editing: false } : task
-      )
-    );
+    setTasks(tasks.map((task) => task.id === id ? { ...task, editing: false } : task));
+  };
+
+  const deleteTask = (id) => {
+    setTasks(tasks.filter((task) => task.id !== id));
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -65,52 +53,53 @@ const App = () => {
 
   return (
     <div className={`container ${darkMode ? "dark" : "light"}`}>
-      <button className="dark-mode-toggle" onClick={() => setDarkMode(!darkMode)}>
-        {darkMode ? "Light Mode" : "Dark Mode"}
-      </button>
-      <h2>To-Do Routine</h2>
+      <header>
+        <button className="dark-mode-toggle" onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
+        </button>
+        <h1>My To-Do List</h1>
+      </header>
       <div className="task-input">
         <input
           type="text"
-          placeholder="Add new task"
+          placeholder="Add a new task..."
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
         />
         <button onClick={addTask}>Add Task</button>
       </div>
-      <ul className="task-list">
+      <div className="task-list">
         {filteredTasks.map((task) => (
-          <li key={task.id} className={task.completed ? "completed" : ""}>
-            <input
-              type="checkbox"
-              checked={task.completed}
-              onChange={() => toggleComplete(task.id)}
-            />
-            {task.editing ? (
+          <div key={task.id} className={`task-card ${task.completed ? "completed" : ""}`}>
+            <div className="task-card-content">
               <input
-                type="text"
-                value={task.text}
-                onChange={(e) => editTask(task.id, e.target.value)}
-                onBlur={() => stopEditing(task.id)}
-                autoFocus
+                type="checkbox"
+                checked={task.completed}
+                onChange={() => toggleComplete(task.id)}
               />
-            ) : (
-              <span>{task.text}</span>
-            )}
-            <button className="edit-btn" onClick={() => startEditing(task.id)}>Edit</button>
-          </li>
+              {task.editing ? (
+                <input
+                  type="text"
+                  value={task.text}
+                  onChange={(e) => editTask(task.id, e.target.value)}
+                  onBlur={() => stopEditing(task.id)}
+                  autoFocus
+                />
+              ) : (
+                <span>{task.text}</span>
+              )}
+            </div>
+            <div className="task-actions">
+              <button className="edit-btn" onClick={() => startEditing(task.id)}>✏️ Edit</button>
+              <button className="delete-btn" onClick={() => deleteTask(task.id)}>🗑️ Delete</button>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
       <div className="filter-buttons">
-        <button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>
-          All
-        </button>
-        <button className={filter === "completed" ? "active" : ""} onClick={() => setFilter("completed")}>
-          Completed
-        </button>
-        <button className={filter === "pending" ? "active" : ""} onClick={() => setFilter("pending")}>
-          Pending
-        </button>
+        <button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>All</button>
+        <button className={filter === "completed" ? "active" : ""} onClick={() => setFilter("completed")}>Completed</button>
+        <button className={filter === "pending" ? "active" : ""} onClick={() => setFilter("pending")}>Pending</button>
       </div>
     </div>
   );
