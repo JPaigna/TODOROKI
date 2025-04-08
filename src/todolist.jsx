@@ -150,7 +150,7 @@ const App = () => {
                   autoFocus
                 />
               ) : (
-                <span>{task.title}</span>  {/* Make sure to display the correct field, e.g., task.title */}
+                <span>{task.title}</span>  
               )}
             </div>
             <div className="task-actions">
