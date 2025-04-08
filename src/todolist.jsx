@@ -12,7 +12,7 @@ const App = () => {
 
   // Fetch tasks from the API when the component is mounted
   useEffect(() => {
-    fetch(`${API_URL}tasks/`)  // Correct path with the updated API_URL
+    fetch(`${API_URL}`)  // Correct path with the updated API_URL
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -29,7 +29,7 @@ const App = () => {
   const addTask = () => {
     if (newTask.trim() === "") return;
 
-    fetch(`${API_URL}tasks/`, {  // Correct path to add task with API_URL
+    fetch(`${API_URL}`, {  // Correct path to add task with API_URL
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,7 +54,7 @@ const App = () => {
       task.id === id ? { ...task, completed: !task.completed } : task
     );
 
-    fetch(`${API_URL}tasks/${id}/`, {  // Correct path to update task completion status
+    fetch(`${API_URL}${id}/`, {  // Correct path to update task completion status
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -80,7 +80,7 @@ const App = () => {
       task.id === id ? { ...task, text: newText } : task
     );
 
-    fetch(`${API_URL}tasks/${id}/`, {  // Correct path to update task text
+    fetch(`${API_URL}${id}/`, {  // Correct path to update task text
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -102,7 +102,7 @@ const App = () => {
   };
 
   const deleteTask = (id) => {
-    fetch(`${API_URL}tasks/${id}/`, {  // Correct path to delete task
+    fetch(`${API_URL}${id}/`, {  // Correct path to delete task
       method: "DELETE",
     })
       .then(() => setTasks(tasks.filter((task) => task.id !== id)))
