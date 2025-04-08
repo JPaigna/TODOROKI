@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
 
-const API_URL = process.env.REACT_APP_API_URL=('https://backend-gg62.onrender.com');
+const API_URL = process.env.REACT_APP_API_URL=('https://backend-gg62.onrender.com/api/myapp/');
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
