@@ -1,48 +1,94 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
 
+const API_URL = process.env.REACT_APP_API_URL=('https://backend-gg62.onrender.com');
+
 const App = () => {
-  const [tasks, setTasks] = useState([
-    { id: 1, text: "Jog at 6am", completed: false, editing: false },
-    { id: 2, text: "Prepare for breakfast at 8", completed: false, editing: false },
-    { id: 3, text: "Ready for school", completed: false, editing: false },
-    { id: 4, text: "Do homework", completed: false, editing: false },
-    { id: 5, text: "Meditate", completed: false, editing: false },
-  ]);
+  const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("all");
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
   const [newTask, setNewTask] = useState("");
 
   useEffect(() => {
+    // Fetch tasks from the API when the component is mounted
+    fetch(API_URL)
+      .then((response) => response.json())
+      .then((data) => setTasks(data))
+      .catch((error) => console.error("Error fetching tasks:", error));
+
     localStorage.setItem("darkMode", darkMode);
   }, [darkMode]);
 
   const addTask = () => {
     if (newTask.trim() === "") return;
-    setTasks([...tasks, { id: Date.now(), text: newTask.trim(), completed: false, editing: false }]);
-    setNewTask("");
+
+    // Add task to the backend
+    fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title: newTask.trim(), completed: false }),
+    })
+      .then((response) => response.json())
+      .then((newTaskFromAPI) => {
+        setTasks([...tasks, newTaskFromAPI]); // Add task to the state
+        setNewTask(""); // Reset input field
+      })
+      .catch((error) => console.error("Error adding task:", error));
   };
 
   const toggleComplete = (id) => {
-    setTasks(tasks.map((task) =>
+    const updatedTasks = tasks.map((task) =>
       task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    );
+
+    // Update task completion status in the backend
+    fetch(`${API_URL}${id}/`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ completed: !tasks.find((task) => task.id === id).completed }),
+    })
+      .then((response) => response.json())
+      .then(() => setTasks(updatedTasks))
+      .catch((error) => console.error("Error updating task completion:", error));
   };
 
   const startEditing = (id) => {
-    setTasks(tasks.map((task) => task.id === id ? { ...task, editing: true } : task));
+    setTasks(tasks.map((task) => (task.id === id ? { ...task, editing: true } : task)));
   };
 
   const editTask = (id, newText) => {
-    setTasks(tasks.map((task) => task.id === id ? { ...task, text: newText } : task));
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, text: newText } : task
+    );
+
+    // Update task text in the backend
+    fetch(`${API_URL}${id}/`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title: newText }),
+    })
+      .then((response) => response.json())
+      .then(() => setTasks(updatedTasks))
+      .catch((error) => console.error("Error editing task:", error));
   };
 
   const stopEditing = (id) => {
-    setTasks(tasks.map((task) => task.id === id ? { ...task, editing: false } : task));
+    setTasks(tasks.map((task) => (task.id === id ? { ...task, editing: false } : task)));
   };
 
   const deleteTask = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+    // Delete task from the backend
+    fetch(`${API_URL}${id}/`, {
+      method: "DELETE",
+    })
+      .then(() => setTasks(tasks.filter((task) => task.id !== id)))
+      .catch((error) => console.error("Error deleting task:", error));
   };
 
   const filteredTasks = tasks.filter((task) => {
