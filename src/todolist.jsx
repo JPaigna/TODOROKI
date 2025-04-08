@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
 
-const API_URL = process.env.REACT_APP_API_URL=('https://backend-gg62.onrender.com/api/myapp/');
+// Correct API_URL
+const API_URL = 'https://backend-gg62.onrender.com/api/myapp/';
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
@@ -9,30 +10,40 @@ const App = () => {
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
   const [newTask, setNewTask] = useState("");
 
+  // Fetch tasks from the API when the component is mounted
   useEffect(() => {
-    // Fetch tasks from the API when the component is mounted
-    fetch(API_URL)
-      .then((response) => response.json())
+    fetch(`${API_URL}tasks/`)  // Correct path with the updated API_URL
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then((data) => setTasks(data))
       .catch((error) => console.error("Error fetching tasks:", error));
 
+    // Store darkMode preference in localStorage
     localStorage.setItem("darkMode", darkMode);
   }, [darkMode]);
 
   const addTask = () => {
     if (newTask.trim() === "") return;
 
-    // Add task to the backend
-    fetch(API_URL, {
+    fetch(`${API_URL}tasks/`, {  // Correct path to add task with API_URL
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ title: newTask.trim(), completed: false }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then((newTaskFromAPI) => {
-        setTasks([...tasks, newTaskFromAPI]); // Add task to the state
+        setTasks([...tasks, newTaskFromAPI]);
         setNewTask(""); // Reset input field
       })
       .catch((error) => console.error("Error adding task:", error));
@@ -43,15 +54,19 @@ const App = () => {
       task.id === id ? { ...task, completed: !task.completed } : task
     );
 
-    // Update task completion status in the backend
-    fetch(`${API_URL}${id}/`, {
+    fetch(`${API_URL}tasks/${id}/`, {  // Correct path to update task completion status
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ completed: !tasks.find((task) => task.id === id).completed }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then(() => setTasks(updatedTasks))
       .catch((error) => console.error("Error updating task completion:", error));
   };
@@ -65,15 +80,19 @@ const App = () => {
       task.id === id ? { ...task, text: newText } : task
     );
 
-    // Update task text in the backend
-    fetch(`${API_URL}${id}/`, {
+    fetch(`${API_URL}tasks/${id}/`, {  // Correct path to update task text
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ title: newText }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then(() => setTasks(updatedTasks))
       .catch((error) => console.error("Error editing task:", error));
   };
@@ -83,8 +102,7 @@ const App = () => {
   };
 
   const deleteTask = (id) => {
-    // Delete task from the backend
-    fetch(`${API_URL}${id}/`, {
+    fetch(`${API_URL}tasks/${id}/`, {  // Correct path to delete task
       method: "DELETE",
     })
       .then(() => setTasks(tasks.filter((task) => task.id !== id)))
@@ -132,7 +150,7 @@ const App = () => {
                   autoFocus
                 />
               ) : (
-                <span>{task.text}</span>
+                <span>{task.title}</span>  {/* Make sure to display the correct field, e.g., task.title */}
               )}
             </div>
             <div className="task-actions">
