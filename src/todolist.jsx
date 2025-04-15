@@ -8,7 +8,7 @@ const API_UPDATE_URL = 'https://backend-gg62.onrender.com/api/todos/';
 const API_DELETE_URL = 'https://backend-gg62.onrender.com/api/todos/';
 
 // Replace with your superadmin token here or set it in localStorage manually
-const TOKEN = localStorage.getItem("token") || "4923908fee66bc05348a8b9aa46ee665bcdf0deb";
+const TOKEN = localStorage.getItem("token") || "57a824629f5402a6248645cdeb91625707bf8847";
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
