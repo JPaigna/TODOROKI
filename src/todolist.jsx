@@ -2,8 +2,12 @@ import React, { useState, useEffect } from "react";
 import "./index.css";
 
 // Correct API_URL
-const API_URL = 'https://backend-gg62.onrender.com/api/todos/';
+const API_URL = 'https://backend-gg62.onrender.com/api/todos/fetch/';
+const API_CREATE_URL = 'https://backend-gg62.onrender.com/api/todos/create/';
+const API_UPDATE_URL = 'https://backend-gg62.onrender.com/api/todos/';
+const API_DELETE_URL = 'https://backend-gg62.onrender.com/api/todos/';
 const TOKEN_URL = 'https://backend-gg62.onrender.com/api/todos/api/token/';
+const TOKEN_REFRESH_URL = 'https://backend-gg62.onrender.com/api/todos/api/token/refresh/';
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
@@ -14,15 +18,70 @@ const App = () => {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
+  // Function to refresh JWT token
+  const refreshAuthToken = () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      setToken("");
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      return Promise.reject("No refresh token available");
+    }
+    return fetch(TOKEN_REFRESH_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh: refreshToken }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Token refresh failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setToken(data.access);
+        localStorage.setItem("token", data.access);
+        return data.access;
+      })
+      .catch((error) => {
+        console.error("Error refreshing token:", error);
+        setToken("");
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        throw error;
+      });
+  };
+
+  // Wrapper for fetch with token refresh handling
+  const fetchWithAuth = (url, options = {}) => {
+    if (!options.headers) {
+      options.headers = {};
+    }
+    options.headers["Authorization"] = `Bearer ${token}`;
+
+    return fetch(url, options).then((response) => {
+      if (response.status === 401) {
+        // Unauthorized, try refreshing token
+        return refreshAuthToken()
+          .then((newToken) => {
+            options.headers["Authorization"] = `Bearer ${newToken}`;
+            return fetch(url, options);
+          })
+          .catch((error) => {
+            throw error;
+          });
+      }
+      return response;
+    });
+  };
+
   // Fetch tasks from the API when the component is mounted or token changes
   useEffect(() => {
     if (!token) return; // Do not fetch if no token
 
-    fetch(`${API_URL}`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-    })  // Correct path with the updated API_URL
+    fetchWithAuth(`${API_URL}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -53,6 +112,7 @@ const App = () => {
       .then((data) => {
         setToken(data.access);
         localStorage.setItem("token", data.access);
+        localStorage.setItem("refreshToken", data.refresh);
       })
       .catch((error) => {
         console.error("Error logging in:", error);
@@ -63,11 +123,10 @@ const App = () => {
   const addTask = () => {
     if (newTask.trim() === "") return;
 
-    fetch(`${API_URL}`, {  // Correct path to add task with API_URL
+    fetchWithAuth(`${API_CREATE_URL}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({ title: newTask.trim(), completed: false }),
     })
@@ -89,11 +148,10 @@ const App = () => {
       task.id === id ? { ...task, completed: !task.completed } : task
     );
 
-    fetch(`${API_URL}${id}/`, {  // Correct path to update task completion status
+    fetchWithAuth(`${API_UPDATE_URL}${id}/update/`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({ completed: !tasks.find((task) => task.id === id).completed }),
     })
@@ -116,11 +174,10 @@ const App = () => {
       task.id === id ? { ...task, text: newText } : task
     );
 
-    fetch(`${API_URL}${id}/`, {  // Correct path to update task text
+    fetchWithAuth(`${API_UPDATE_URL}${id}/update/`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({ title: newText }),
     })
@@ -139,12 +196,15 @@ const App = () => {
   };
 
   const deleteTask = (id) => {
-    fetch(`${API_URL}${id}/`, {  // Correct path to delete task
+    fetchWithAuth(`${API_DELETE_URL}${id}/delete/`, {
       method: "DELETE",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
     })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then(() => setTasks(tasks.filter((task) => task.id !== id)))
       .catch((error) => console.error("Error deleting task:", error));
   };
