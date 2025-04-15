@@ -7,8 +7,8 @@ const API_CREATE_URL = 'https://backend-gg62.onrender.com/api/todos/create/';
 const API_UPDATE_URL = 'https://backend-gg62.onrender.com/api/todos/';
 const API_DELETE_URL = 'https://backend-gg62.onrender.com/api/todos/';
 
-// Replace with your superadmin token here or set it in localStorage manually
-const TOKEN = localStorage.getItem("token") || "57a824629f5402a6248645cdeb91625707bf8847";
+// Use the token you generated from Django REST Framework's TokenAuthentication here
+const TOKEN = "57a824629f5402a6248645cdeb91625707bf8847"; // Your actual token
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
@@ -20,7 +20,7 @@ const App = () => {
   useEffect(() => {
     fetch(`${API_URL}`, {
       headers: {
-        "Authorization": `Bearer ${TOKEN}`,
+        "Authorization": `Token ${TOKEN}`,
       },
     })
       .then((response) => {
@@ -43,7 +43,7 @@ const App = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${TOKEN}`,
+        "Authorization": `Token ${TOKEN}`,
       },
       body: JSON.stringify({ title: newTask.trim(), completed: false }),
     })
@@ -69,7 +69,7 @@ const App = () => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${TOKEN}`,
+        "Authorization": `Token ${TOKEN}`,
       },
       body: JSON.stringify({ completed: !tasks.find((task) => task.id === id).completed }),
     })
@@ -96,7 +96,7 @@ const App = () => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${TOKEN}`,
+        "Authorization": `Token ${TOKEN}`,
       },
       body: JSON.stringify({ title: newText }),
     })
@@ -118,7 +118,7 @@ const App = () => {
     fetch(`${API_DELETE_URL}${id}/delete/`, {
       method: "DELETE",
       headers: {
-        "Authorization": `Bearer ${TOKEN}`,
+        "Authorization": `Token ${TOKEN}`,
       },
     })
       .then(() => setTasks(tasks.filter((task) => task.id !== id)))
