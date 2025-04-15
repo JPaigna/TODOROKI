@@ -3,7 +3,7 @@ import "./index.css";
 
 // Correct API_URL
 const API_URL = 'https://backend-gg62.onrender.com/api/myapp/';
-const TOKEN_URL = 'https://backend-gg62.onrender.com/api/token/';
+const TOKEN_URL = 'https://backend-gg62.onrender.com/api/token';
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
