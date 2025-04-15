@@ -3,16 +3,26 @@ import "./index.css";
 
 // Correct API_URL
 const API_URL = 'https://backend-gg62.onrender.com/api/myapp/';
+const TOKEN_URL = 'https://backend-gg62.onrender.com/api/token/';
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("all");
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
   const [newTask, setNewTask] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
 
-  // Fetch tasks from the API when the component is mounted
+  // Fetch tasks from the API when the component is mounted or token changes
   useEffect(() => {
-    fetch(`${API_URL}`)  // Correct path with the updated API_URL
+    if (!token) return; // Do not fetch if no token
+
+    fetch(`${API_URL}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    })  // Correct path with the updated API_URL
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -24,7 +34,31 @@ const App = () => {
 
     // Store darkMode preference in localStorage
     localStorage.setItem("darkMode", darkMode);
-  }, [darkMode]);
+  }, [darkMode, token]);
+
+  const login = () => {
+    fetch(TOKEN_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Login failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setToken(data.access);
+        localStorage.setItem("token", data.access);
+      })
+      .catch((error) => {
+        console.error("Error logging in:", error);
+        alert("Login failed. Please check your credentials.");
+      });
+  };
 
   const addTask = () => {
     if (newTask.trim() === "") return;
@@ -33,6 +67,7 @@ const App = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({ title: newTask.trim(), completed: false }),
     })
@@ -58,6 +93,7 @@ const App = () => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({ completed: !tasks.find((task) => task.id === id).completed }),
     })
@@ -84,6 +120,7 @@ const App = () => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({ title: newText }),
     })
@@ -104,6 +141,9 @@ const App = () => {
   const deleteTask = (id) => {
     fetch(`${API_URL}${id}/`, {  // Correct path to delete task
       method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
     })
       .then(() => setTasks(tasks.filter((task) => task.id !== id)))
       .catch((error) => console.error("Error deleting task:", error));
@@ -114,6 +154,27 @@ const App = () => {
     if (filter === "pending") return !task.completed;
     return true;
   });
+
+  if (!token) {
+    return (
+      <div className="login-container">
+        <h2>Login</h2>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button onClick={login}>Login</button>
+      </div>
+    );
+  }
 
   return (
     <div className={`container ${darkMode ? "dark" : "light"}`}>
